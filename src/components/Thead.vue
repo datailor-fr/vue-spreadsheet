@@ -11,7 +11,7 @@
         <label :for="`checkbox-all-${currentTable}`"></label>
       </th>
       <th v-if="tbodyIndex" class="index" key="th-index"></th>
-      <template v-for="(header, colIndex) in headers">
+      <template v-for="(header, colIndex) in headers" :key="header.headerKey">
         <th
           class="th"
           :class="{
@@ -20,7 +20,6 @@
             dragged: beforeChangeSize.col === colIndex,
           }"
           :ref="'th-' + colIndex"
-          :key="header.headerKey"
           :style="[header.style, (header.style.top = headerTop > 0 ? headerTop + 'px' : 'auto')]"
         >
           <span>{{ header.headerName }}</span>
@@ -197,7 +196,7 @@ export default {
     removeClass(params, colIndex) {
       this.headers.forEach((header, index) => {
         if (index !== colIndex) {
-          this.$set(this.headers[index], "activeSort", "");
+          this.headers[index].activeSort = "";
         }
       });
     },
@@ -257,9 +256,9 @@ export default {
         element.style.setProperty("--dragHeaderHeight", "100%");
 
         // set new size on header
-        this.$set(this.headers[this.beforeChangeSize.col].style, "width", `${this.newSize}px`);
-        this.$set(this.headers[this.beforeChangeSize.col].style, "minWidth", `${this.newSize}px`);
-        this.$set(this.headers[this.beforeChangeSize.col], "active", false);
+        this.headers[this.beforeChangeSize.col].style.width = `${this.newSize}px`;
+        this.headers[this.beforeChangeSize.col].style.minWidth = `${this.newSize}px`;
+        this.headers[this.beforeChangeSize.col].active = false;
 
         this.beforeChangeSize = {};
         this.$emit("handle-up-drag-size-header", event, this.headers);
@@ -269,9 +268,9 @@ export default {
       const header = h;
 
       if (!header.activeSort || header.activeSort === "Z") {
-        this.$set(this.headers[colIndex], "activeSort", "A");
+        this.headers[colIndex].activeSort = "A";
       } else {
-        this.$set(this.headers[colIndex], "activeSort", "Z");
+        this.headers[colIndex].activeSort = "Z";
       }
 
       this.removeClass("activeSort", colIndex);

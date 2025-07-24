@@ -35,7 +35,7 @@
       <vue-tbody
         v-if="!loading"
         :ref="`${customTable}-vueTbody`"
-        :tbody-data="value"
+        :tbody-data="modelValue"
         :headers="headers"
         :tbody-checkbox="customOptions.tbodyCheckbox"
         :tbody-index="customOptions.tbodyIndex"
@@ -83,7 +83,7 @@ import Fuse from "fuse.js";
 import VueThead from "./Thead.vue";
 import VueTbody from "./TBody/TBody.vue";
 
-const lodashClonedeep = require("lodash.clonedeep");
+import lodashClonedeep from "lodash.clonedeep";
 
 export default {
   name: "VueTable",
@@ -106,7 +106,7 @@ export default {
       type: Array,
       required: true,
     },
-    value: {
+    modelValue: {
       type: Array,
       required: true,
     },
@@ -168,7 +168,7 @@ export default {
   },
   computed: {
     checkedRows() {
-      return this.value.filter((x) => x.checked);
+      return this.modelValue.filter((x) => x.checked);
     },
     colHeaderWidths() {
       return this.headers.map((x) => parseInt(x.style.width, 10));
@@ -193,7 +193,7 @@ export default {
     },
   },
   watch: {
-    value() {
+    modelValue() {
       this.createdCell();
     },
     headers() {
@@ -214,7 +214,7 @@ export default {
     },
     calculPosition(event, rowIndex, colIndex, header) {
       // If we calculPosition for dropdown, but there is no dropdown to render.
-      if (header === "dropdown" && !this.value[rowIndex][this.headers[colIndex].headerKey].search) {
+      if (header === "dropdown" && !this.modelValue[rowIndex][this.headers[colIndex].headerKey].search) {
         return;
       }
 
@@ -287,32 +287,32 @@ export default {
     },
     createdCell() {
       // create cell if isn't exist
-      this.value.forEach((tbody, rowIndex) => {
+      this.modelValue?.forEach((tbody, rowIndex) => {
         if (this.customOptions.tbodyCheckbox && !tbody.vuetable_checked) {
-          this.$set(this.value[rowIndex], "vuetable_checked", false);
+          this.modelValue[rowIndex].vuetable_checked = false;
         }
 
         this.headerKeys.forEach((header) => {
           if (!tbody[header]) {
             const data = lodashClonedeep(this.customOptions.newData);
 
-            this.$set(this.value[rowIndex], header, data);
+            this.modelValue[rowIndex][header] = data;
           } else if (!tbody[header].type && "value" in tbody[header]) {
             const data = lodashClonedeep(this.customOptions.newData);
             const copyTbody = lodashClonedeep(tbody[header]);
 
             copyTbody.type = data.type;
-            this.$set(this.value[rowIndex], header, copyTbody);
+            this.modelValue[rowIndex][header] = copyTbody;
           }
 
-          const copy = lodashClonedeep(this.value[rowIndex][header]);
+          const copy = lodashClonedeep(this.modelValue[rowIndex][header]);
 
           if (
-            !this.value[rowIndex][header].duplicate ||
-            (this.value[rowIndex][header].duplicate &&
-              this.value[rowIndex][header].duplicate === copy)
+            !this.modelValue[rowIndex][header].duplicate ||
+            (this.modelValue[rowIndex][header].duplicate &&
+              this.modelValue[rowIndex][header].duplicate === copy)
           ) {
-            this.$set(this.value[rowIndex][header], "duplicate", copy);
+            this.modelValue[rowIndex][header].duplicate = copy;
           }
         });
       });
@@ -330,7 +330,7 @@ export default {
       }
     },
     enableSelect(event, header, col, rowIndex, colIndex) {
-      const currentElement = this.value[rowIndex][header];
+      const currentElement = this.modelValue[rowIndex][header];
 
       if (!col.search) {
         this.removeClass(["search", "show"]);
@@ -342,8 +342,8 @@ export default {
           rowIndex,
         };
 
-        this.$set(currentElement, "search", true);
-        this.$set(currentElement, "show", true);
+        currentElement.search = true;
+        currentElement.show = true;
 
         this.$nextTick(() => {
           this.$refs[`${this.customTable}-vueTbody`].$refs[
@@ -363,8 +363,8 @@ export default {
           }
         });
       } else {
-        this.$set(currentElement, "search", false);
-        this.$set(currentElement, "show", false);
+        currentElement.search = false;
+        currentElement.show = false;
         this.lastSelectOpen = null;
       }
     },
@@ -394,14 +394,14 @@ export default {
       }
 
       params.forEach((param) => {
-        this.value.forEach((data, index) => {
+        this.modelValue.forEach((data, index) => {
           Object.keys(data).forEach((key) => {
             if (
-              this.value[index] &&
-              this.value[index][key] &&
-              this.value[index][key][param] === true
+              this.modelValue[index] &&
+              this.modelValue[index][key] &&
+              this.modelValue[index][key][param] === true
             ) {
-              this.$set(this.value[index][key], param, false);
+              this.modelValue[index][key][param] = false;
             }
           });
 
@@ -475,7 +475,6 @@ export default {
       const column = col;
 
       column.show = false;
-      this.$set(this.value[rowIndex][header], "value", this.value[rowIndex][header].value);
 
       if (type === "select") {
         column.search = false;
