@@ -19,7 +19,4 @@ yarn-error.log*
 *.sln
 *.sw*
 
-# Dist folder
-dist/
-
 .env
