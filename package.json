@@ -2,7 +2,8 @@
   "name": "vuejs-spreadsheet",
   "version": "2.2.1",
   "description": "An easier Spreadsheet in Vue",
-  "main": "dist/vuespreadsheet.common.js",
+  "main": "dist/vuespreadsheet.umd.js",
+  "module": "dist/vuespreadsheet.es.js",
   "author": "Joffrey Berrier <joffrey.berrier@gmail.com>",
   "repository": {
     "url": "git+https://github.com/joffreyBerrier/vue-spreadsheet.git",
@@ -22,7 +23,8 @@
     "build": "run-p type-check build-only",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --noEmit"
+    "type-check": "vue-tsc --noEmit",
+    "build-package": "vite build --target lib --name vuespreadsheet ./src/index.js"
   },
   "license": "MIT",
   "dependencies": {
